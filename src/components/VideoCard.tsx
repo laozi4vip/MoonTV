@@ -30,7 +30,7 @@ interface VideoCardProps {
   year?: string;
   from: 'playrecord' | 'favorite' | 'search' | 'douban';
   currentEpisode?: number;
-  douban_id?: number;
+  douban_id?: string;
   onDelete?: () => void;
   rate?: string;
   items?: SearchResult[];
@@ -63,7 +63,7 @@ export default function VideoCard({
 
   const aggregateData = useMemo(() => {
     if (!isAggregate || !items) return null;
-    const countMap = new Map<number, number>();
+    const countMap = new Map<string | number, number>();
     const episodeCountMap = new Map<number, number>();
     items.forEach((item) => {
       if (item.douban_id && item.douban_id !== 0) {
@@ -75,9 +75,11 @@ export default function VideoCard({
       }
     });
 
-    const getMostFrequent = (map: Map<number, number>) => {
+    const getMostFrequent = <T extends string | number>(
+      map: Map<T, number>
+    ) => {
       let maxCount = 0;
-      let result: number | undefined;
+      let result: T | undefined;
       map.forEach((cnt, key) => {
         if (cnt > maxCount) {
           maxCount = cnt;
@@ -98,7 +100,9 @@ export default function VideoCard({
   const actualPoster = aggregateData?.first.poster ?? poster;
   const actualSource = aggregateData?.first.source ?? source;
   const actualId = aggregateData?.first.id ?? id;
-  const actualDoubanId = aggregateData?.mostFrequentDoubanId ?? douban_id;
+  const actualDoubanId = String(
+    aggregateData?.mostFrequentDoubanId ?? douban_id
+  );
   const actualEpisodes = aggregateData?.mostFrequentEpisodes ?? episodes;
   const actualYear = aggregateData?.first.year ?? year;
   const actualQuery = query || '';
@@ -336,9 +340,9 @@ export default function VideoCard({
         )}
 
         {/* 豆瓣链接 */}
-        {config.showDoubanLink && actualDoubanId && actualDoubanId !== 0 && (
+        {config.showDoubanLink && actualDoubanId && (
           <a
-            href={`https://movie.douban.com/subject/${actualDoubanId.toString()}`}
+            href={`https://movie.douban.com/subject/${actualDoubanId}`}
             target='_blank'
             rel='noopener noreferrer'
             onClick={(e) => e.stopPropagation()}

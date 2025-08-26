@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
       const user = adminConfig.UserConfig.Users.find(
         (u) => u.username === username
       );
-      if (!user || user.role !== 'admin' || user.banned) {
+      if (!user || user.role !== 'admin') {
         return NextResponse.json({ error: '权限不足' }, { status: 401 });
       }
     }
